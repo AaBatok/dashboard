@@ -172,4 +172,4 @@ MIT License — Free to use and modify.
 
 ---
 
-**Provided by Batok** 🦇
+**CREDIT THX TO NAMDOAL & SAWAL**
