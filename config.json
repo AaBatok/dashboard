@@ -73,13 +73,13 @@
     },
     "telegram": {
         "enabled": true,
-        "bot_token": "8657922631:AAFcgotbIpPCGYeyH8gOUvVi8Vvnp7qTS3s",
-        "user_id": "1230799611"
+        "bot_token": "",
+        "user_id": ""
     },
     "dashboard": {
         "enabled": true,
-        "url": "http://localhost:3888",
-        "api_key": "akugantengbangetcuy",
+        "url": "http://gantiipvps:3888",
+        "api_key": "isiapisendiribebas",
         "vps_id": "vps-1",
         "push_interval_seconds": 30
     }

@@ -121,9 +121,9 @@ const dynamicMinSwap = {
 // ── TOGGLE SWITCHES (edit di sini buat on/off) ──
 // ═══════════════════════════════════════════════════════════
 // Mode 4: Top-up rescue → swap gagal "below minimum" → pakai CC sendiri buat top-up pair
-const ENABLE_MODE4_TOPUP_RESCUE = true;
+const ENABLE_MODE4_TOPUP_RESCUE = false;
 // Mode 4: Cross-wallet helper → wallet stuck minta CC dari wallet lain
-const ENABLE_MODE4_HELPER = true;
+const ENABLE_MODE4_HELPER = false;
 // Adaptive Rate Limit: true = pakai adaptiveRL learner (auto-adjust cooldown dari observed gap)
 //                      false = pakai fixed rate_limit_wait_seconds + 3m buffer (seperti normal.js)
 const ENABLE_ADAPTIVE_RATE_LIMIT = false;
