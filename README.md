@@ -30,8 +30,8 @@ Dashboard real-time untuk monitoring bot multi-akun Cantor8. Menampilkan profit 
 ### 1. Clone Repository
 
 ```bash
-git clone https://github.com/AaBatok/dashboard.git c8-dashboard
-cd c8-dashboard
+git clone https://github.com/AaBatok/dashboard
+cd dashboard
 ```
 
 ### 2. Install Dependencies
