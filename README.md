@@ -133,7 +133,7 @@ curl -X POST http://IP:3888/api/push \
 ## 📁 Struktur File
 
 ```
-c8-dashboard/
+dashboard/
 ├── public/
 │   ├── index.html      # Dashboard frontend
 │   ├── bg.png           # Background image
