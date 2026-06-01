@@ -1,0 +1,86 @@
+{
+    "swap": {
+        "enabled": true,
+        "rounds": 1000,
+        "reward_landed_threshold": 1000,
+        "delay_min_seconds": 1740,
+        "delay_max_seconds": 1800,
+        "min_amount": 29,
+        "cc_reserve": 0.1,
+        "waiting_balance_threshold": 29,
+        "dynamic_minimum_swap": {
+            "enabled": true,
+            "extra_cc": 1.5,
+            "fallback_min": 29
+        },
+        "swap_mode": 4,
+        "tx_per_cycle": 3,
+        "swaps_per_window_schedule": [
+            3
+        ],
+        "cooldown_seconds": 0,
+        "pair_a": {
+            "chain": "CC",
+            "asset": "0x0",
+            "label": "CC (Amulet)"
+        },
+        "pair_b": {
+            "chain": "CC",
+            "asset": "USDCX",
+            "label": "USDCX"
+        },
+        "pair_ceth": {
+            "chain": "CC",
+            "asset": "CETH",
+            "label": "CETH"
+        },
+        "ceth_bulk_min": 0.0005,
+        "reward_estimate_ceth": 0.38,
+        "reward_estimate_usdcx": 0.29,
+        "max_acceptable_loss_cc": 0.28,
+        "rate_check_interval_seconds": 20,
+        "rate_limit_wait_seconds": 3600
+    },
+    "background_refresh": {
+        "enabled": true,
+        "interval_seconds": 3540
+    },
+    "retry": {
+        "rate_limit_initial_delay_minutes": 28,
+        "rate_limit_delays": [
+            15,
+            30,
+            60
+        ],
+        "server_rejected_delays": [
+            15,
+            30,
+            60
+        ],
+        "max_422_retries": 3
+    },
+    "api": {
+        "backend_url": "https://wallet-backend.main.digik.cantor8.tech/api",
+        "swap_url": "https://api.vectornine.tech",
+        "exchange_url": "https://exchange.cantor8.tech"
+    },
+    "stagger_min_seconds": 5,
+    "stagger_max_seconds": 20,
+    "derivation": {
+        "path_prefix": "m/501'/800245900'/0'",
+        "path_suffix": "0'",
+        "key_count": 20
+    },
+    "telegram": {
+        "enabled": true,
+        "bot_token": "8657922631:AAFcgotbIpPCGYeyH8gOUvVi8Vvnp7qTS3s",
+        "user_id": "1230799611"
+    },
+    "dashboard": {
+        "enabled": true,
+        "url": "http://localhost:3888",
+        "api_key": "akugantengbangetcuy",
+        "vps_id": "vps-1",
+        "push_interval_seconds": 30
+    }
+}

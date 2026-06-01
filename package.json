@@ -1,0 +1,15 @@
+{
+  "name": "c8-dashboard",
+  "version": "2.0.0",
+  "description": "Cantor8 Bot Dashboard — SSE Realtime + Command Center",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.0",
+    "cors": "^2.8.5"
+  }
+}

@@ -1,0 +1,7 @@
+node_modules/
+.env
+.env.production
+accounts.json
+proxy.txt
+swap_state.json
+deploy/

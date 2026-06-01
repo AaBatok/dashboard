@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cetak Duit — Dashboard</title>
+    <meta name="description" content="Cetak Duit Dashboard — Multi-Account Bot Real-time Monitor">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #060a13;
+            --card: rgba(10, 18, 35, 0.75);
+            --card-border: rgba(255,255,255,0.07);
+            --card-glow: rgba(16,185,129,0.08);
+            --glass: rgba(255,255,255,0.03);
+            --text: #e2e8f0;
+            --text2: #94a3b8;
+            --text3: #64748b;
+            --text4: #475569;
+            --green: #10b981;
+            --green2: #34d399;
+            --cyan: #22d3ee;
+            --blue: #3b82f6;
+            --purple: #a855f7;
+            --amber: #f59e0b;
+            --rose: #f43f5e;
+            --indigo: #6366f1;
+            --teal: #14b8a6;
+            --r: 12px;
+            --r2: 16px;
+            --font: 'Inter', -apple-system, sans-serif;
+            --mono: 'JetBrains Mono', monospace;
+        }
+        *{margin:0;padding:0;box-sizing:border-box}
+        html{font-size:14px;scroll-behavior:smooth}
+        body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+
+        /* ── Background ──────────────────────────────────── */
+        .bg-wrap{position:fixed;inset:0;z-index:0;overflow:hidden}
+        .bg-img{width:100%;height:100%;object-fit:cover;opacity:0.18;filter:brightness(0.7) saturate(1.2)}
+        .bg-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(6,10,19,0.3) 0%,rgba(6,10,19,0.85) 50%,rgba(6,10,19,0.97) 100%)}
+
+        ::-webkit-scrollbar{width:5px}
+        ::-webkit-scrollbar-thumb{background:rgba(16,185,129,0.25);border-radius:3px}
+
+        .app{max-width:1400px;margin:0 auto;padding:16px 20px 40px;position:relative;z-index:1}
+
+        /* ── Header ──────────────────────────────────────── */
+        .hdr{display:flex;align-items:center;justify-content:space-between;padding:12px 0 16px;margin-bottom:16px}
+        .hdr-left{display:flex;align-items:center;gap:12px}
+        .hdr-logo{width:44px;height:44px;border-radius:12px;overflow:hidden;box-shadow:0 0 20px rgba(16,185,129,0.15);animation:float 4s ease-in-out infinite;flex-shrink:0}
+        .hdr-logo img{width:100%;height:100%;object-fit:cover}
+        @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+        .hdr-title{font-size:1.5rem;font-weight:900;background:linear-gradient(135deg,#10b981,#22d3ee);-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1.15}
+        .hdr-sub{font-size:0.62rem;color:var(--text3);font-weight:600;margin-top:1px;letter-spacing:0.12em;text-transform:uppercase}
+        .hdr-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+        .badge{display:inline-flex;align-items:center;gap:5px;padding:5px 13px;border-radius:100px;font-size:0.7rem;font-weight:600;border:1px solid}
+        .badge-on{background:rgba(16,185,129,0.1);border-color:rgba(16,185,129,0.25);color:var(--green)}
+        .badge-off{background:rgba(239,68,68,0.1);border-color:rgba(239,68,68,0.25);color:var(--rose)}
+        .badge-stale{background:rgba(245,158,11,0.1);border-color:rgba(245,158,11,0.25);color:var(--amber)}
+        .dot{width:6px;height:6px;border-radius:50%}
+        .dot-on{background:var(--green);box-shadow:0 0 6px rgba(16,185,129,0.5);animation:pulse 2s ease-in-out infinite}
+        .dot-off{background:var(--rose)}
+        @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.4;transform:scale(0.8)}}
+        .up-badge{padding:5px 12px;background:var(--glass);border:1px solid var(--card-border);border-radius:100px;font-size:0.7rem;color:var(--text2);font-family:var(--mono);font-weight:500}
+        .last-txt{font-size:0.66rem;color:var(--text4);font-family:var(--mono)}
+
+        /* ── Hero Card (Profit Bersih) ────────────────────── */
+        .hero{position:relative;border-radius:var(--r2);overflow:hidden;padding:28px 32px;margin-bottom:14px;border:1px solid var(--card-border);backdrop-filter:blur(16px)}
+        .hero-bg{position:absolute;inset:0;z-index:0}
+        .hero-bg img{width:100%;height:100%;object-fit:cover;opacity:0.2;filter:brightness(0.6) saturate(1.3)}
+        .hero-bg-overlay{position:absolute;inset:0;background:linear-gradient(135deg,rgba(6,10,19,0.8),rgba(6,10,19,0.5))}
+        .hero-content{position:relative;z-index:1}
+        .hero-label{font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--green2);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+        .hero-label .live-dot{width:6px;height:6px;background:var(--green);border-radius:50%;box-shadow:0 0 8px var(--green);animation:pulse 1.5s ease-in-out infinite}
+        .hero-amount{font-size:2.8rem;font-weight:900;font-family:var(--mono);color:#fff;letter-spacing:-0.03em;line-height:1.1}
+        .hero-amount.profit-pos{color:var(--green2)}
+        .hero-amount.profit-neg{color:var(--rose)}
+        .hero-rp{font-size:1.1rem;font-weight:600;color:var(--text2);margin-top:4px;font-family:var(--mono)}
+        .hero-detail{font-size:0.75rem;color:var(--text3);margin-top:8px;font-family:var(--mono)}
+
+        /* ── Four Cards Row ──────────────────────────────── */
+        .cards4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px}
+        .card3{position:relative;border-radius:var(--r2);overflow:hidden;padding:20px 22px;border:1px solid var(--card-border);backdrop-filter:blur(14px)}
+        .card3-bg{position:absolute;inset:0;z-index:0}
+        .card3-bg img{width:100%;height:100%;object-fit:cover;opacity:0.12;filter:brightness(0.5) saturate(1.2)}
+        .card3-bg-ov{position:absolute;inset:0;background:rgba(6,10,19,0.75)}
+        .card3-content{position:relative;z-index:1}
+        .card3-label{font-size:0.62rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--text3);margin-bottom:6px}
+        .card3-val{font-size:1.6rem;font-weight:800;font-family:var(--mono);color:#fff;letter-spacing:-0.02em}
+        .card3-val.pnl-pos{color:var(--green2)}
+        .card3-val.pnl-neg{color:var(--rose)}
+        .card3-rp{font-size:0.78rem;color:var(--text3);font-family:var(--mono);margin-top:2px}
+        .card3-detail{font-size:0.66rem;color:var(--text4);font-family:var(--mono);margin-top:4px}
+
+        /* ── Balance Bar ─────────────────────────────────── */
+        .bal-bar{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:14px}
+        .bal-item{background:var(--card);border:1px solid var(--card-border);border-radius:var(--r);padding:14px 16px;text-align:center;backdrop-filter:blur(10px);transition:transform 0.2s,border-color 0.2s}
+        .bal-item:hover{border-color:rgba(16,185,129,0.2);transform:translateY(-2px)}
+        .bal-lbl{font-size:0.6rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text4);margin-bottom:4px}
+        .bal-val{font-size:1.15rem;font-weight:800;font-family:var(--mono)}
+        .c-cc{color:var(--green)}
+        .c-u{color:var(--blue)}
+        .c-ce{color:var(--cyan)}
+        .c-rcc{color:var(--purple)}
+        .c-sw{color:var(--amber)}
+        .c-rw{color:var(--indigo)}
+
+        /* ── Bottom Stats Bar ────────────────────────────── */
+        .bot-bar{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:22px}
+        .bot-item{background:var(--card);border:1px solid var(--card-border);border-radius:var(--r);padding:12px 16px;backdrop-filter:blur(10px)}
+        .bot-lbl{font-size:0.58rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text4);margin-bottom:3px}
+        .bot-val{font-size:1rem;font-weight:800;font-family:var(--mono);color:var(--text)}
+        .bot-sub{font-size:0.68rem;color:var(--text4);font-family:var(--mono)}
+
+        /* ── Section Header ──────────────────────────────── */
+        .sec-h{font-size:0.92rem;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:7px}
+        .sec-cnt{font-size:0.66rem;background:var(--glass);border:1px solid var(--card-border);padding:2px 9px;border-radius:100px;color:var(--text3);font-family:var(--mono);font-weight:600}
+
+        /* ── Table ────────────────────────────────────────── */
+        .tbl-w{background:var(--card);border:1px solid var(--card-border);border-radius:var(--r2);overflow:hidden;margin-bottom:20px;backdrop-filter:blur(12px)}
+        .tbl-s{overflow-x:auto}
+        table{width:100%;border-collapse:collapse}
+        thead th{padding:10px 12px;text-align:right;font-size:0.64rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text3);border-bottom:1px solid var(--card-border);background:rgba(0,0,0,0.2);white-space:nowrap}
+        thead th:first-child{text-align:left;padding-left:16px}
+        tbody tr{border-bottom:1px solid rgba(255,255,255,0.015);transition:background 0.15s}
+        tbody tr:hover{background:rgba(16,185,129,0.03)}
+        tbody td{padding:9px 12px;text-align:right;font-family:var(--mono);font-size:0.76rem;font-weight:500;white-space:nowrap;color:var(--text2)}
+        tbody td:first-child{text-align:left;padding-left:16px;font-family:var(--font);font-weight:600;color:var(--text)}
+        tfoot td{padding:10px 12px;text-align:right;font-family:var(--mono);font-size:0.78rem;font-weight:800;border-top:2px solid var(--card-border);background:rgba(0,0,0,0.15);white-space:nowrap}
+        tfoot td:first-child{text-align:left;padding-left:16px;font-family:var(--font)}
+
+        .chip{display:inline-flex;align-items:center;gap:3px;padding:2px 9px;border-radius:100px;font-size:0.62rem;font-weight:600;font-family:var(--font)}
+        .chip-swap{background:rgba(34,211,238,0.12);color:var(--cyan)}
+        .chip-done{background:rgba(16,185,129,0.12);color:var(--green)}
+        .chip-init{background:rgba(100,116,139,0.12);color:var(--text3)}
+        .chip-wait{background:rgba(245,158,11,0.12);color:var(--amber)}
+        .chip-err{background:rgba(239,68,68,0.12);color:var(--rose)}
+        .chip-restart{background:rgba(244,63,94,0.12);color:var(--rose)}
+        .chip-idle{background:rgba(99,102,241,0.1);color:var(--indigo)}
+        .d-pos{color:var(--green);font-weight:600}
+        .d-neg{color:var(--rose);font-weight:600}
+        .d-zero{color:var(--text4)}
+
+        /* ── Detail Cards ────────────────────────────────── */
+        .det-g{display:grid;grid-template-columns:repeat(auto-fill,minmax(370px,1fr));gap:12px;margin-bottom:22px}
+        .dc{background:var(--card);border:1px solid var(--card-border);border-radius:var(--r2);padding:16px 18px;backdrop-filter:blur(12px);transition:border-color 0.2s}
+        .dc:hover{border-color:rgba(16,185,129,0.15)}
+        .dc-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--card-border)}
+        .dc-name{font-weight:700;font-size:0.88rem;display:flex;align-items:center;gap:6px}
+        .dc-rank{font-size:0.66rem;font-weight:700;font-family:var(--mono);color:var(--indigo);background:rgba(99,102,241,0.1);padding:2px 9px;border-radius:100px}
+        .dc-bals{display:grid;grid-template-columns:repeat(2,1fr);gap:5px;margin-bottom:10px}
+        .db{display:flex;justify-content:space-between;padding:5px 9px;background:rgba(0,0,0,0.18);border-radius:8px;font-size:0.7rem}
+        .db-l{color:var(--text3);font-weight:600}
+        .db-v{font-family:var(--mono);font-weight:600}
+        .dc-rw{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-bottom:10px}
+        .dr{text-align:center;padding:6px 4px;background:rgba(0,0,0,0.12);border-radius:8px}
+        .dr-l{font-size:0.56rem;color:var(--text4);text-transform:uppercase;letter-spacing:0.05em;font-weight:700;margin-bottom:2px}
+        .dr-v{font-size:0.76rem;font-family:var(--mono);font-weight:700}
+        .dc-logs{background:rgba(0,0,0,0.22);border-radius:8px;padding:8px 10px;max-height:130px;overflow-y:auto}
+        .ll{font-family:var(--mono);font-size:0.62rem;color:var(--text3);line-height:1.6;white-space:pre-wrap;word-break:break-all}
+
+        .empty{text-align:center;padding:40px 20px}
+        .empty-ico{font-size:2.5rem;margin-bottom:10px;animation:bounce 2.5s ease-in-out infinite}
+        @keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+        .empty-t{font-size:1rem;font-weight:700;color:var(--text2);margin-bottom:5px}
+        .empty-d{font-size:0.8rem;color:var(--text3);max-width:400px;margin:0 auto}
+        .empty-ep{margin-top:12px;padding:7px 14px;background:rgba(0,0,0,0.25);border-radius:8px;display:inline-block;font-family:var(--mono);font-size:0.72rem;color:var(--cyan)}
+
+        @keyframes vf{0%{background:rgba(16,185,129,0.15)}100%{background:transparent}}
+        .vf{animation:vf 0.8s ease-out;border-radius:3px}
+
+        @media(max-width:768px){
+            .app{padding:10px 12px 30px}
+            .hdr{flex-direction:column;gap:10px;align-items:flex-start}
+            .cards4{grid-template-columns:repeat(2,1fr)}
+            .bal-bar{grid-template-columns:repeat(2,1fr)}
+            .bot-bar{grid-template-columns:repeat(2,1fr)}
+            .det-g{grid-template-columns:1fr}
+            .hero-amount{font-size:2rem}
+            .card3-val{font-size:1.2rem}
+        }
+        @media(max-width:480px){.cards4{grid-template-columns:1fr}.bal-bar{grid-template-columns:1fr}.dc-bals{grid-template-columns:1fr}}
+    </style>
+</head>
+<body>
+    <!-- Background -->
+    <div class="bg-wrap">
+        <img class="bg-img" src="/bg.png" alt="" onerror="this.style.display='none'">
+        <div class="bg-overlay"></div>
+    </div>
+
+    <div class="app">
+        <!-- Header -->
+        <header class="hdr">
+            <div class="hdr-left">
+                <div class="hdr-logo"><img src="/logo.png" alt="Logo" onerror="this.parentElement.textContent='💰'"></div>
+                <div>
+                    <div class="hdr-title">Cetak Duit</div>
+                    <div class="hdr-sub">PROVIDED BY BATOK 🦇</div>
+                </div>
+            </div>
+            <div class="hdr-right">
+                <div class="badge badge-off" id="statusBadge"><span class="dot dot-off"></span><span id="statusTxt">Connecting...</span></div>
+                <div class="up-badge" id="upBadge">⏱ --:--:--</div>
+                <div class="last-txt" id="lastTxt">—</div>
+            </div>
+        </header>
+
+        <!-- Hero: Profit Bersih -->
+        <div class="hero" id="heroCard">
+            <div class="hero-bg">
+                <img src="/bg.png" alt="" onerror="this.style.display='none'">
+                <div class="hero-bg-overlay"></div>
+            </div>
+            <div class="hero-content">
+                <div class="hero-label">PROFIT BERSIH <span class="live-dot"></span> LIVE</div>
+                <div class="hero-amount" id="heroAmount">$0.00</div>
+                <div class="hero-rp" id="heroRp">Rp 0</div>
+            </div>
+        </div>
+
+        <!-- Four Cards: Claimed, Unclaimed, Portfolio, PNL -->
+        <div class="cards4">
+            <div class="card3">
+                <div class="card3-bg"><img src="/bg.png" alt="" onerror="this.style.display='none'"><div class="card3-bg-ov"></div></div>
+                <div class="card3-content">
+                    <div class="card3-label">CLAIMED REWARDS</div>
+                    <div class="card3-val" id="claimedUsd">$0.00</div>
+                    <div class="card3-rp" id="claimedRp">Rp 0</div>
+                </div>
+            </div>
+            <div class="card3">
+                <div class="card3-bg"><img src="/bg.png" alt="" onerror="this.style.display='none'"><div class="card3-bg-ov"></div></div>
+                <div class="card3-content">
+                    <div class="card3-label">UNCLAIMED REWARDS</div>
+                    <div class="card3-val" id="unclaimedUsd">$0.00</div>
+                    <div class="card3-rp" id="unclaimedRp">Rp 0</div>
+                    <div class="card3-detail" id="unclaimedDetail">0.00 total · 0.00 CC · 0.00 rCC</div>
+                </div>
+            </div>
+            <div class="card3">
+                <div class="card3-bg"><img src="/bg.png" alt="" onerror="this.style.display='none'"><div class="card3-bg-ov"></div></div>
+                <div class="card3-content">
+                    <div class="card3-label">TOTAL PORTFOLIO</div>
+                    <div class="card3-val" id="portfolioUsd">$0.00</div>
+                    <div class="card3-rp" id="portfolioRp">Rp 0</div>
+                </div>
+            </div>
+            <div class="card3">
+                <div class="card3-bg"><img src="/bg.png" alt="" onerror="this.style.display='none'"><div class="card3-bg-ov"></div></div>
+                <div class="card3-content">
+                    <div class="card3-label">PNL SEJAK REFRESH</div>
+                    <div class="card3-val pnl-pos" id="pnlUsd">+$0.00</div>
+                    <div class="card3-rp" id="pnlRp">Rp 0 · 0.00 CC</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Balance Bar -->
+        <div class="bal-bar" id="balBar">
+            <div class="bal-item"><div class="bal-lbl">CC</div><div class="bal-val c-cc" id="bCC">0.00</div></div>
+            <div class="bal-item"><div class="bal-lbl">USDCx</div><div class="bal-val c-u" id="bU">0.0000</div></div>
+            <div class="bal-item"><div class="bal-lbl">CETH</div><div class="bal-val c-ce" id="bCE">0.000000</div></div>
+            <div class="bal-item"><div class="bal-lbl">rCC</div><div class="bal-val c-rcc" id="bR">0.0000</div></div>
+            <div class="bal-item"><div class="bal-lbl">AKUN AKTIF</div><div class="bal-val c-sw" id="bAkun">0/0</div></div>
+        </div>
+
+        <!-- Bottom Stats -->
+        <div class="bot-bar" id="botBar">
+            <div class="bot-item"><div class="bot-lbl">REWARD</div><div class="bot-val" id="bbReward">0.00 CC</div></div>
+            <div class="bot-item"><div class="bot-lbl">CLAIMED</div><div class="bot-val" id="bbClaimed">0.00 CC</div></div>
+            <div class="bot-item"><div class="bot-lbl">PENDING</div><div class="bot-val" id="bbPending">0.00 CC</div></div>
+            <div class="bot-item"><div class="bot-lbl">SWAPS</div><div class="bot-val" id="bbSwaps">0</div></div>
+            <div class="bot-item"><div class="bot-lbl">HARGA</div><div class="bot-val" id="bbHarga">CC $0 · CETH $0</div></div>
+        </div>
+
+        <!-- Accounts Table -->
+        <div class="sec-h"><span>📊</span> Accounts Overview <span class="sec-cnt" id="accCnt">0</span></div>
+        <div class="tbl-w">
+            <div class="tbl-s">
+                <table>
+                    <thead><tr>
+                        <th style="text-align:left">#</th><th>CC</th><th>USDCx</th><th>CETH</th><th>rCC</th><th>Swaps</th><th>Reward</th><th>Δ rCC</th><th>Rank</th><th>Volume</th><th style="text-align:center">Status</th>
+                    </tr></thead>
+                    <tbody id="tBody"><tr><td colspan="11" style="text-align:center;color:var(--text4);padding:22px">Menunggu data dari bot...</td></tr></tbody>
+                    <tfoot id="tFoot" style="display:none"><tr>
+                        <td>TOTAL</td><td class="c-cc" id="fCC">0</td><td class="c-u" id="fU">0</td><td class="c-ce" id="fCE">0</td><td class="c-rcc" id="fR">0</td><td class="c-sw" id="fS">0</td><td class="c-rw" id="fRw">0</td><td id="fD">—</td><td>—</td><td id="fV">$0</td><td></td>
+                    </tr></tfoot>
+                </table>
+            </div>
+        </div>
+
+        <!-- Detail Cards -->
+        <div class="sec-h"><span>🔍</span> Account Details & Logs <span class="sec-cnt" id="detCnt">0</span></div>
+        <div class="det-g" id="detGrid"></div>
+
+        <!-- Empty State -->
+        <div class="empty" id="emptyState">
+            <div class="empty-ico">📡</div>
+            <div class="empty-t">Menunggu Data dari Bot</div>
+            <div class="empty-d">Dashboard berjalan. Set <code>dashboard.url</code> di <code>config.json</code> bot.</div>
+            <div class="empty-ep" id="epHint">http://IP:3888</div>
+        </div>
+    </div>
+
+    <script>
+        const $=id=>document.getElementById(id);
+        const fmt=(n,d=2)=>Number(n||0).toFixed(d);
+        const fmtMoney=n=>{const v=Math.abs(n);if(v>=1e6)return(n/1e6).toFixed(2)+'M';if(v>=1e3)return n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});return fmt(n,2)};
+        const fmtRp=n=>'Rp '+Math.round(n).toLocaleString('id-ID');
+        const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+        const USD_TO_IDR = 16500; // Kurs approximate
+
+        let prevData=null, hasData=false, sseConnected=false;
+        let initialCC=null, initialRCC=null; // For PNL tracking
+        let modalPerWallet=65; // Default, will be fetched from server
+
+        // Fetch modal per wallet from server config
+        async function fetchConfig(){
+            try{
+                const r=await fetch('/api/config');
+                const d=await r.json();
+                if(d&&d.modalPerWallet>0) modalPerWallet=d.modalPerWallet;
+            }catch{}
+        }
+
+        function formatUptime(s){if(!s||s<=0)return'--:--:--';const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),sec=s%60;return`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`}
+        function timeAgo(iso){if(!iso)return'—';const d=Math.floor((Date.now()-new Date(iso).getTime())/1000);if(d<5)return'just now';if(d<60)return d+'s lalu';if(d<3600)return Math.floor(d/60)+'m lalu';return Math.floor(d/3600)+'h lalu'}
+
+        function chipCls(st){if(!st)return'chip-init';const s=st.toLowerCase();if(s.includes('swap'))return'chip-swap';if(s==='done')return'chip-done';if(s==='idle')return'chip-idle';if(s.includes('wait')||s.includes('cooldown')||s.includes('resume'))return'chip-wait';if(s.includes('restart')||s.includes('soft'))return'chip-restart';if(s.includes('error')||s.includes('kurang'))return'chip-err';return'chip-init'}
+        function chipIco(st){return{'chip-swap':'⚡','chip-done':'✅','chip-idle':'💤','chip-wait':'⏳','chip-restart':'🔄','chip-err':'❌','chip-init':'🔧'}[chipCls(st)]||'•'}
+        function medal(r){return r===1?'🥇':r===2?'🥈':r===3?'🥉':r>0?'🏅':''}
+        function flash(el,val){if(el&&el.textContent!==String(val)){el.textContent=val;el.classList.add('vf');setTimeout(()=>el.classList.remove('vf'),800)}}
+
+        function render(data){
+            if(!data||!data.accounts||!data.accounts.length){$('emptyState').style.display='';return}
+            $('emptyState').style.display='none';
+            hasData=true;
+
+            const accs=data.accounts, pr=data.prices||{};
+            const ccUsd=pr.ccUsd||0, cethUsd=pr.cethUsd||0;
+
+            // Status
+            $('statusBadge').className='badge badge-on';
+            $('statusBadge').innerHTML='<span class="dot dot-on"></span><span>Bot Online · '+timeAgo(data._receivedAt||data.timestamp)+'</span>';
+            if(data.botUptime)$('upBadge').textContent='⏱ '+formatUptime(data.botUptime);
+            $('lastTxt').textContent='Updated: '+timeAgo(data._receivedAt||data.timestamp);
+
+            // Totals
+            let tCC=0,tU=0,tCE=0,tR=0,tS=0,tRw=0,tV=0,tD=0,tP=0,tTR=0,active=0;
+            accs.forEach(a=>{
+                tCC+=a.cc||0;tU+=a.usdcx||0;tCE+=a.ceth||0;tR+=a.rcc||0;
+                tS+=a.totalSwaps||0;tRw+=a.monthReward||0;tV+=a.monthVolume||0;
+                tD+=a.diffRcc||0;tP+=a.pendingReward||0;tTR+=a.totalReward||0;
+                const st=(a.status||'').toLowerCase();
+                if(st&&st!=='init'&&st!=='idle'&&!st.includes('error'))active++;
+            });
+
+            const claimed=Math.max(0,tTR-tP);
+
+            // Portfolio: CC+USDCx+CETH in USD
+            const portfolioUsd=(tCC*ccUsd)+(tU*1)+(tCE*cethUsd);
+
+            // Unclaimed Rewards in USD
+            const unclaimedUsd=tP*ccUsd;
+
+            // ★ PROFIT BERSIH = (Portfolio + Unclaimed) - Modal
+            const modalUsd=modalPerWallet*accs.length*ccUsd;
+            const profitBersih=(portfolioUsd+unclaimedUsd)-modalUsd;
+
+            // PNL tracking (sejak refresh)
+            if(initialCC===null&&tCC>0){initialCC=tCC;initialRCC=tR}
+            const pnlCC=(initialCC!==null)?(tCC-initialCC):0;
+            const pnlRCC=(initialRCC!==null)?(tR-initialRCC):0;
+            const pnlUsd=pnlCC*ccUsd;
+
+            // ── Hero: Profit Bersih ──
+            const profitSign=profitBersih>=0?'+':'';
+            flash($('heroAmount'),profitSign+'$'+fmtMoney(Math.abs(profitBersih)));
+            $('heroAmount').className='hero-amount '+(profitBersih>=0?'profit-pos':'profit-neg');
+            $('heroRp').textContent=(profitBersih>=0?'+':'-')+fmtRp(Math.abs(profitBersih*USD_TO_IDR));
+
+            // ── Claimed ──
+            const claimedUsd=claimed*ccUsd;
+            flash($('claimedUsd'),'$'+fmtMoney(claimedUsd));
+            $('claimedRp').textContent=fmtRp(claimedUsd*USD_TO_IDR);
+
+            // ── Unclaimed Rewards ──
+            flash($('unclaimedUsd'),'$'+fmtMoney(unclaimedUsd));
+            $('unclaimedRp').textContent=fmtRp(unclaimedUsd*USD_TO_IDR);
+            $('unclaimedDetail').textContent=fmt(tTR,2)+' total · '+fmt(tP,2)+' CC · '+fmt(tR,4)+' rCC';
+
+            // ── Portfolio ──
+            flash($('portfolioUsd'),'$'+fmtMoney(portfolioUsd));
+            $('portfolioRp').textContent=fmtRp(portfolioUsd*USD_TO_IDR);
+
+            // ── PNL ──
+            const pnlEl=$('pnlUsd');
+            const pnlSignTxt=pnlUsd>=0?'+':'';
+            pnlEl.textContent=pnlSignTxt+'$'+fmtMoney(Math.abs(pnlUsd));
+            pnlEl.className='card3-val '+(pnlUsd>=0?'pnl-pos':'pnl-neg');
+            $('pnlRp').textContent=(pnlUsd>=0?'+':'')+fmtRp(Math.abs(pnlUsd*USD_TO_IDR))+' · '+(pnlCC>=0?'+':'')+fmt(pnlCC,2)+' CC';
+
+            // ── Balance Bar ──
+            flash($('bCC'),fmtMoney(tCC));
+            flash($('bU'),fmt(tU,4));
+            flash($('bCE'),fmt(tCE,6));
+            flash($('bR'),fmt(tR,4));
+            $('bAkun').textContent=active+'/'+accs.length;
+
+            // ── Bottom Stats ──
+            $('bbReward').textContent=fmt(tRw,2)+' CC';
+            $('bbClaimed').textContent=fmt(claimed,2)+' CC';
+            $('bbPending').textContent=fmt(tP,2)+' CC';
+            $('bbSwaps').textContent=tS.toLocaleString();
+            $('bbHarga').textContent='CC $'+fmt(ccUsd,4)+' · CETH $'+fmt(cethUsd,2);
+
+            $('accCnt').textContent=accs.length;
+            $('detCnt').textContent=accs.length;
+
+            // ── Table ──
+            let html='';
+            accs.forEach((a,i)=>{
+                const d=a.diffRcc||0,ds=(d>=0?'+':'')+fmt(d,4),dc=d>0?'d-pos':d<0?'d-neg':'d-zero';
+                const cc=chipCls(a.status),ci=chipIco(a.status);
+                const rk=a.rank>0?'#'+a.rank:'—',md=medal(a.rank);
+                html+=`<tr><td>${md} ${a.name||'Acc '+(i+1)}</td><td class="c-cc">${fmt(a.cc,2)}</td><td class="c-u">${fmt(a.usdcx,4)}</td><td class="c-ce">${fmt(a.ceth,8)}</td><td class="c-rcc">${fmt(a.rcc,4)}</td><td class="c-sw">${a.totalSwaps||0}</td><td class="c-rw">${fmt(a.monthReward,2)}</td><td class="${dc}">${ds}</td><td class="c-rw" style="font-weight:700">${rk}</td><td>$${fmt(a.monthVolume,2)}</td><td style="text-align:center"><span class="chip ${cc}">${ci} ${a.status||'init'}</span></td></tr>`;
+            });
+            $('tBody').innerHTML=html;
+
+            $('tFoot').style.display='';
+            const tDs=(tD>=0?'+':'')+fmt(tD,4),tDc=tD>0?'d-pos':tD<0?'d-neg':'d-zero';
+            $('fCC').textContent=fmt(tCC,2);$('fU').textContent=fmt(tU,4);$('fCE').textContent=fmt(tCE,8);
+            $('fR').textContent=fmt(tR,4);$('fS').textContent=tS;$('fRw').textContent=fmt(tRw,2);
+            $('fD').textContent=tDs;$('fD').className=tDc;$('fV').textContent='$'+fmt(tV,2);
+
+            // ── Detail Cards ──
+            let dh='';
+            accs.forEach((a,i)=>{
+                const cc=chipCls(a.status),ci=chipIco(a.status);
+                const d=a.diffRcc||0,ds=(d>=0?'+':'')+fmt(d,4),dc=d>0?'d-pos':d<0?'d-neg':'d-zero';
+                const rk=a.rank>0?medal(a.rank)+' #'+a.rank:'—';
+                const rpt=a.rewardPerTx||(a.monthTxns>0?(a.monthReward/a.monthTxns):0);
+                const logs=(a.logs||[]).map(l=>`<div class="ll">${esc(l)}</div>`).join('')||'<div class="ll" style="color:var(--text4)">(no logs)</div>';
+                dh+=`<div class="dc"><div class="dc-h"><div class="dc-name"><span class="chip ${cc}">${ci}</span>${a.name||'Acc '+(i+1)}</div><div class="dc-rank">${rk}</div></div><div class="dc-bals"><div class="db"><span class="db-l">💎 CC</span><span class="db-v c-cc">${fmt(a.cc,4)}</span></div><div class="db"><span class="db-l">🔵 USDCx</span><span class="db-v c-u">${fmt(a.usdcx,4)}</span></div><div class="db"><span class="db-l">⟠ CETH</span><span class="db-v c-ce">${fmt(a.ceth,10)}</span></div><div class="db"><span class="db-l">🟣 rCC</span><span class="db-v c-rcc">${fmt(a.rcc,4)} <small class="${dc}">(${ds})</small></span></div></div><div class="dc-rw"><div class="dr"><div class="dr-l">Month Reward</div><div class="dr-v c-rw">${fmt(a.monthReward,2)}</div></div><div class="dr"><div class="dr-l">Volume</div><div class="dr-v">$${fmt(a.monthVolume,2)}</div></div><div class="dr"><div class="dr-l">Month TXs</div><div class="dr-v">${a.monthTxns||0}</div></div><div class="dr"><div class="dr-l">Total Reward</div><div class="dr-v c-cc">${fmt(a.totalReward,2)}</div></div><div class="dr"><div class="dr-l">Pending</div><div class="dr-v c-sw">${fmt(a.pendingReward,2)}</div></div><div class="dr"><div class="dr-l">Rew/TX</div><div class="dr-v">${fmt(rpt,4)}</div></div></div><div class="dc-logs">${logs}</div></div>`;
+            });
+            $('detGrid').innerHTML=dh;
+            prevData=data;
+        }
+
+        // ── SSE ──
+        let sse=null;
+        function connectSSE(){
+            if(sse)try{sse.close()}catch{}
+            sse=new EventSource('/api/stream');
+            sse.addEventListener('update',e=>{try{render(JSON.parse(e.data))}catch{}});
+            sse.addEventListener('heartbeat',()=>{});
+            sse.addEventListener('status',e=>{try{const d=JSON.parse(e.data);if(d.status==='waiting'&&!hasData){$('statusBadge').className='badge badge-stale';$('statusBadge').innerHTML='<span class="dot dot-off"></span><span>Menunggu bot...</span>'}}catch{}});
+            sse.onopen=()=>{sseConnected=true};
+            sse.onerror=()=>{sseConnected=false;if(!hasData){$('statusBadge').className='badge badge-off';$('statusBadge').innerHTML='<span class="dot dot-off"></span><span>Reconnecting...</span>'}};
+        }
+
+        // Fallback polling
+        async function poll(){if(sseConnected)return;try{const r=await fetch('/api/data');const d=await r.json();if(d&&d.accounts&&d.accounts.length)render(d)}catch{}}
+
+        // Auto-update time text
+        setInterval(()=>{if(prevData){const ts=prevData._receivedAt||prevData.timestamp;$('lastTxt').textContent='Updated: '+timeAgo(ts);const diff=Date.now()-new Date(ts).getTime();if(diff>120000&&hasData){$('statusBadge').className='badge badge-stale';$('statusBadge').innerHTML='<span class="dot dot-off"></span><span>Stale</span>'}}},5000);
+
+        // Endpoint hint
+        const h=location.hostname||'localhost',p=location.port||'3888';
+        $('epHint').textContent=`http://${h}:${p}`;
+
+        // Init
+        fetchConfig().then(()=>{
+            connectSSE();
+            setInterval(poll,10000);
+        });
+    </script>
+</body>
+</html>
