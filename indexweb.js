@@ -511,12 +511,13 @@ function formatDelayTime(seconds) {
 }
 
 // ── Fetch Dynamic Minimum Swap (SIMPLE - fetch fresh setiap swap) ────────
-// Flow: fetch minimum dari API → tambah 1.5 → return untuk swap
+// Flow: fetch minimum dari API → tambah extra → Math.max dengan config min_amount
 async function fetchDynamicMinSwap(swapApi, log) {
     if (!dynamicMinSwap.enabled) return config.swap.min_amount;
 
     const { pair_a } = config.swap;
     const pair_b = getActivePairB();
+    const configMin = config.swap.min_amount || 27;
 
     try {
         // Fetch minimum dari API
@@ -524,34 +525,40 @@ async function fetchDynamicMinSwap(swapApi, log) {
 
         if (rawMin !== null && !isNaN(rawMin) && rawMin > 0) {
             dynamicMinSwap.lastRawMin = rawMin;
-            const swapAmount = rawMin + dynamicMinSwap.extraCc;
-            log(`📊 Min: ${rawMin}CC + ${dynamicMinSwap.extraCc}CC = ${swapAmount.toFixed(2)}CC`);
+            const dynamicAmount = rawMin + dynamicMinSwap.extraCc;
+            // Gunakan Math.max: config min_amount sebagai floor guarantee
+            const swapAmount = Math.max(dynamicAmount, configMin);
+            log(`📊 Min: ${rawMin}CC + ${dynamicMinSwap.extraCc}CC = ${dynamicAmount.toFixed(2)}CC → use ${swapAmount.toFixed(2)}CC (config min: ${configMin})`);
             return swapAmount;
         }
     } catch (err) {
         // Silent fail, use fallback
     }
 
-    // Fallback jika API gagal
-    const fallbackAmount = dynamicMinSwap.fallbackMin + dynamicMinSwap.extraCc;
+    // Fallback jika API gagal — tetap pakai Math.max dengan config
+    const fallbackAmount = Math.max(dynamicMinSwap.fallbackMin + dynamicMinSwap.extraCc, configMin);
     return fallbackAmount;
 }
 
 
 // ── Fetch minimum for a SPECIFIC pair (for CETH leg) ─────────────────────
 async function fetchMinSwapForPair(swapApi, log, fromPair, toPair) {
+    const configMin = config.swap.min_amount || 27;
     try {
         const rawMin = await swapApi.getMinimumSwap(fromPair.chain, fromPair.asset, toPair.chain, toPair.asset);
         if (rawMin !== null && !isNaN(rawMin) && rawMin > 0) {
             const extra = dynamicMinSwap.enabled ? dynamicMinSwap.extraCc : 0;
-            const swapAmount = rawMin + extra;
-            log(`📊 Min ${fromPair.label}→${toPair.label}: ${rawMin}CC + ${extra}CC = ${swapAmount.toFixed(2)}CC`);
+            const dynamicAmount = rawMin + extra;
+            // Floor guarantee: minimal sebesar config min_amount
+            const swapAmount = Math.max(dynamicAmount, configMin);
+            log(`📊 Min ${fromPair.label}→${toPair.label}: ${rawMin}CC + ${extra}CC = ${dynamicAmount.toFixed(2)}CC → use ${swapAmount.toFixed(2)}CC`);
             return swapAmount;
         }
     } catch { /* silent */ }
-    return dynamicMinSwap.enabled
-        ? (dynamicMinSwap.fallbackMin + dynamicMinSwap.extraCc)
-        : config.swap.min_amount;
+    const fallback = dynamicMinSwap.enabled
+        ? Math.max(dynamicMinSwap.fallbackMin + dynamicMinSwap.extraCc, configMin)
+        : configMin;
+    return fallback;
 }
 
 
@@ -2051,7 +2058,7 @@ async function performSwap(ctx, holdings) {
 
     // Get effective swap amount (dynamic or static) - will be fetched fresh before each swap
     const getMinThreshold = () => dynamicMinSwap.enabled
-        ? (dynamicMinSwap.lastRawMin + dynamicMinSwap.extraCc)
+        ? Math.max(dynamicMinSwap.lastRawMin + dynamicMinSwap.extraCc, min_amount)
         : min_amount;
 
     let ccBalance = getHoldingBal(holdings, CC_ASSET_KEYS);
