@@ -73,8 +73,8 @@
     },
     "telegram": {
         "enabled": true,
-        "bot_token": "8657922631:AAFcgotbIpPCGYeyH8gOUvVi8Vvnp7qTS3s",
-        "user_id": "1230799611"
+        "bot_token": "",
+        "user_id": ""
     },
     "auto_send": {
         "enabled": false,
@@ -84,9 +84,9 @@
     },
     "dashboard": {
         "aktif": true,
-        "url": "http://187.77.103.43:3888",
-        "api_key": "akugantengbangetcuy",
-        "vps_id": "vps-1",
+        "url": "",
+        "api_key": "",
+        "vps_id": "",
         "push_interval_detik": 30
     }
 }
