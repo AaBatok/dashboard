@@ -107,7 +107,7 @@
         .c-cc{color:var(--green)}
         .c-u{color:var(--blue)}
         .c-ce{color:var(--cyan)}
-        .c-rcc{color:var(--purple)}
+
         .c-sw{color:var(--amber)}
         .c-rw{color:var(--indigo)}
 
@@ -242,7 +242,7 @@
                     <div class="card3-label">UNCLAIMED REWARDS</div>
                     <div class="card3-val" id="unclaimedUsd">$0.00</div>
                     <div class="card3-rp" id="unclaimedRp">Rp 0</div>
-                    <div class="card3-detail" id="unclaimedDetail">0.00 total · 0.00 CC · 0.00 rCC</div>
+                    <div class="card3-detail" id="unclaimedDetail">0.00 total · 0.00 pending</div>
                 </div>
             </div>
             <div class="card3">
@@ -268,7 +268,7 @@
             <div class="bal-item"><div class="bal-lbl">CC</div><div class="bal-val c-cc" id="bCC">0.00</div></div>
             <div class="bal-item"><div class="bal-lbl">USDCx</div><div class="bal-val c-u" id="bU">0.0000</div></div>
             <div class="bal-item"><div class="bal-lbl">CETH</div><div class="bal-val c-ce" id="bCE">0.000000</div></div>
-            <div class="bal-item"><div class="bal-lbl">rCC</div><div class="bal-val c-rcc" id="bR">0.0000</div></div>
+
             <div class="bal-item"><div class="bal-lbl">AKUN AKTIF</div><div class="bal-val c-sw" id="bAkun">0/0</div></div>
         </div>
 
@@ -287,11 +287,11 @@
             <div class="tbl-s">
                 <table>
                     <thead><tr>
-                        <th style="text-align:left">#</th><th>CC</th><th>USDCx</th><th>CETH</th><th>rCC</th><th>Swaps</th><th>Reward</th><th>Δ rCC</th><th>Rank</th><th>Volume</th><th style="text-align:center">Status</th>
+                        <th style="text-align:left">#</th><th>CC</th><th>USDCx</th><th>CETH</th><th>Swaps</th><th>Reward</th><th>Rank</th><th>Volume</th><th>Last Swap</th><th>GAP/SWAP</th><th style="text-align:center">Status</th>
                     </tr></thead>
                     <tbody id="tBody"><tr><td colspan="11" style="text-align:center;color:var(--text4);padding:22px">Menunggu data dari bot...</td></tr></tbody>
                     <tfoot id="tFoot" style="display:none"><tr>
-                        <td>TOTAL</td><td class="c-cc" id="fCC">0</td><td class="c-u" id="fU">0</td><td class="c-ce" id="fCE">0</td><td class="c-rcc" id="fR">0</td><td class="c-sw" id="fS">0</td><td class="c-rw" id="fRw">0</td><td id="fD">—</td><td>—</td><td id="fV">$0</td><td></td>
+                        <td>TOTAL</td><td class="c-cc" id="fCC">0</td><td class="c-u" id="fU">0</td><td class="c-ce" id="fCE">0</td><td class="c-sw" id="fS">0</td><td class="c-rw" id="fRw">0</td><td>—</td><td id="fV">$0</td><td>—</td><td>—</td><td></td>
                     </tr></tfoot>
                 </table>
             </div>
@@ -316,18 +316,18 @@
         const fmtMoney=n=>{const v=Math.abs(n);if(v>=1e6)return(n/1e6).toFixed(2)+'M';if(v>=1e3)return n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});return fmt(n,2)};
         const fmtRp=n=>'Rp '+Math.round(n).toLocaleString('id-ID');
         const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+        const fmtDuration=s=>{if(!s||s<=0)return'—';const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),sec=Math.floor(s%60);if(h>0)return h+'h '+m+'m';return m+'m '+sec+'s'};
 
         const USD_TO_IDR = 16500; // Kurs approximate
 
         let prevData=null, hasData=false, sseConnected=false;
-        let initialCC=null, initialRCC=null; // For PNL tracking
-        let lastTCC=0, lastTR=0; // Store latest totals for reset
+        let initialCC=null; // For PNL tracking
+        let lastTCC=0; // Store latest totals for reset
         let modalPerWallet=65; // Default, will be fetched from server
 
         function resetPnL(){
             if(lastTCC>0){
                 initialCC=lastTCC;
-                initialRCC=lastTR;
                 if(prevData) render(prevData);
             }
         }
@@ -364,11 +364,11 @@
             $('lastTxt').textContent='Updated: '+timeAgo(data._receivedAt||data.timestamp);
 
             // Totals
-            let tCC=0,tU=0,tCE=0,tR=0,tS=0,tRw=0,tV=0,tD=0,tP=0,tTR=0,active=0;
+            let tCC=0,tU=0,tCE=0,tS=0,tRw=0,tV=0,tP=0,tTR=0,active=0;
             accs.forEach(a=>{
-                tCC+=a.cc||0;tU+=a.usdcx||0;tCE+=a.ceth||0;tR+=a.rcc||0;
+                tCC+=a.cc||0;tU+=a.usdcx||0;tCE+=a.ceth||0;
                 tS+=a.totalSwaps||0;tRw+=a.monthReward||0;tV+=a.monthVolume||0;
-                tD+=a.diffRcc||0;tP+=a.pendingReward||0;tTR+=a.totalReward||0;
+                tP+=a.pendingReward||0;tTR+=a.totalReward||0;
                 const st=(a.status||'').toLowerCase();
                 if(st&&st!=='init'&&st!=='idle'&&!st.includes('error'))active++;
             });
@@ -386,12 +386,11 @@
             const profitBersih=(portfolioUsd+unclaimedUsd)-modalUsd;
 
             // Store latest totals for reset button
-            lastTCC=tCC; lastTR=tR;
+            lastTCC=tCC;
 
             // PNL tracking (sejak refresh)
-            if(initialCC===null&&tCC>0){initialCC=tCC;initialRCC=tR}
+            if(initialCC===null&&tCC>0){initialCC=tCC}
             const pnlCC=(initialCC!==null)?(tCC-initialCC):0;
-            const pnlRCC=(initialRCC!==null)?(tR-initialRCC):0;
             const pnlUsd=pnlCC*ccUsd;
 
             // ── Hero: Profit Bersih ──
@@ -408,7 +407,7 @@
             // ── Unclaimed Rewards ──
             flash($('unclaimedUsd'),'$'+fmtMoney(unclaimedUsd));
             $('unclaimedRp').textContent=fmtRp(unclaimedUsd*USD_TO_IDR);
-            $('unclaimedDetail').textContent=fmt(tTR,2)+' total · '+fmt(tP,2)+' CC · '+fmt(tR,4)+' rCC';
+            $('unclaimedDetail').textContent=fmt(tTR,2)+' total · '+fmt(tP,2)+' pending';
 
             // ── Portfolio ──
             flash($('portfolioUsd'),'$'+fmtMoney(portfolioUsd));
@@ -425,7 +424,6 @@
             flash($('bCC'),fmtMoney(tCC));
             flash($('bU'),fmt(tU,4));
             flash($('bCE'),fmt(tCE,6));
-            flash($('bR'),fmt(tR,4));
             $('bAkun').textContent=active+'/'+accs.length;
 
             // ── Bottom Stats ──
@@ -441,28 +439,31 @@
             // ── Table ──
             let html='';
             accs.forEach((a,i)=>{
-                const d=a.diffRcc||0,ds=(d>=0?'+':'')+fmt(d,4),dc=d>0?'d-pos':d<0?'d-neg':'d-zero';
                 const cc=chipCls(a.status),ci=chipIco(a.status);
                 const rk=a.rank>0?'#'+a.rank:'—',md=medal(a.rank);
-                html+=`<tr><td>${md} ${a.name||'Acc '+(i+1)}</td><td class="c-cc">${fmt(a.cc,2)}</td><td class="c-u">${fmt(a.usdcx,4)}</td><td class="c-ce">${fmt(a.ceth,8)}</td><td class="c-rcc">${fmt(a.rcc,4)}</td><td class="c-sw">${a.totalSwaps||0}</td><td class="c-rw">${fmt(a.monthReward,2)}</td><td class="${dc}">${ds}</td><td class="c-rw" style="font-weight:700">${rk}</td><td>$${fmt(a.monthVolume,2)}</td><td style="text-align:center"><span class="chip ${cc}">${ci} ${a.status||'init'}</span></td></tr>`;
+                const lastSwapSec=a.lastSwapAt>0?Math.floor((Date.now()-a.lastSwapAt)/1000):0;
+                const lastSwapTxt=a.lastSwapAt>0?fmtDuration(lastSwapSec)+' lalu':'—';
+                const gapTxt=a.gapPerSwap>0?fmtDuration(a.gapPerSwap):'—';
+                html+=`<tr><td>${md} ${a.name||'Acc '+(i+1)}</td><td class="c-cc">${fmt(a.cc,2)}</td><td class="c-u">${fmt(a.usdcx,4)}</td><td class="c-ce">${fmt(a.ceth,8)}</td><td class="c-sw">${a.totalSwaps||0}</td><td class="c-rw">${fmt(a.monthReward,2)}</td><td class="c-rw" style="font-weight:700">${rk}</td><td>$${fmt(a.monthVolume,2)}</td><td>${lastSwapTxt}</td><td>${gapTxt}</td><td style="text-align:center"><span class="chip ${cc}">${ci} ${a.status||'init'}</span></td></tr>`;
             });
             $('tBody').innerHTML=html;
 
             $('tFoot').style.display='';
-            const tDs=(tD>=0?'+':'')+fmt(tD,4),tDc=tD>0?'d-pos':tD<0?'d-neg':'d-zero';
             $('fCC').textContent=fmt(tCC,2);$('fU').textContent=fmt(tU,4);$('fCE').textContent=fmt(tCE,8);
-            $('fR').textContent=fmt(tR,4);$('fS').textContent=tS;$('fRw').textContent=fmt(tRw,2);
-            $('fD').textContent=tDs;$('fD').className=tDc;$('fV').textContent='$'+fmt(tV,2);
+            $('fS').textContent=tS;$('fRw').textContent=fmt(tRw,2);
+            $('fV').textContent='$'+fmt(tV,2);
 
             // ── Detail Cards ──
             let dh='';
             accs.forEach((a,i)=>{
                 const cc=chipCls(a.status),ci=chipIco(a.status);
-                const d=a.diffRcc||0,ds=(d>=0?'+':'')+fmt(d,4),dc=d>0?'d-pos':d<0?'d-neg':'d-zero';
                 const rk=a.rank>0?medal(a.rank)+' #'+a.rank:'—';
                 const rpt=a.rewardPerTx||(a.monthTxns>0?(a.monthReward/a.monthTxns):0);
+                const lastSwapSec2=a.lastSwapAt>0?Math.floor((Date.now()-a.lastSwapAt)/1000):0;
+                const lastSwapTxt2=a.lastSwapAt>0?fmtDuration(lastSwapSec2)+' lalu':'—';
+                const gapTxt2=a.gapPerSwap>0?fmtDuration(a.gapPerSwap):'—';
                 const logs=(a.logs||[]).map(l=>`<div class="ll">${esc(l)}</div>`).join('')||'<div class="ll" style="color:var(--text4)">(no logs)</div>';
-                dh+=`<div class="dc"><div class="dc-h"><div class="dc-name"><span class="chip ${cc}">${ci}</span>${a.name||'Acc '+(i+1)}</div><div class="dc-rank">${rk}</div></div><div class="dc-bals"><div class="db"><span class="db-l">💎 CC</span><span class="db-v c-cc">${fmt(a.cc,4)}</span></div><div class="db"><span class="db-l">🔵 USDCx</span><span class="db-v c-u">${fmt(a.usdcx,4)}</span></div><div class="db"><span class="db-l">⟠ CETH</span><span class="db-v c-ce">${fmt(a.ceth,10)}</span></div><div class="db"><span class="db-l">🟣 rCC</span><span class="db-v c-rcc">${fmt(a.rcc,4)} <small class="${dc}">(${ds})</small></span></div></div><div class="dc-rw"><div class="dr"><div class="dr-l">Month Reward</div><div class="dr-v c-rw">${fmt(a.monthReward,2)}</div></div><div class="dr"><div class="dr-l">Volume</div><div class="dr-v">$${fmt(a.monthVolume,2)}</div></div><div class="dr"><div class="dr-l">Month TXs</div><div class="dr-v">${a.monthTxns||0}</div></div><div class="dr"><div class="dr-l">Total Reward</div><div class="dr-v c-cc">${fmt(a.totalReward,2)}</div></div><div class="dr"><div class="dr-l">Pending</div><div class="dr-v c-sw">${fmt(a.pendingReward,2)}</div></div><div class="dr"><div class="dr-l">Rew/TX</div><div class="dr-v">${fmt(rpt,4)}</div></div></div><div class="dc-logs">${logs}</div></div>`;
+                dh+=`<div class="dc"><div class="dc-h"><div class="dc-name"><span class="chip ${cc}">${ci}</span>${a.name||'Acc '+(i+1)}</div><div class="dc-rank">${rk}</div></div><div class="dc-bals"><div class="db"><span class="db-l">💎 CC</span><span class="db-v c-cc">${fmt(a.cc,4)}</span></div><div class="db"><span class="db-l">🔵 USDCx</span><span class="db-v c-u">${fmt(a.usdcx,4)}</span></div><div class="db"><span class="db-l">⟠ CETH</span><span class="db-v c-ce">${fmt(a.ceth,10)}</span></div><div class="db"><span class="db-l">⏱ Last Swap</span><span class="db-v">${lastSwapTxt2}</span></div></div><div class="dc-rw"><div class="dr"><div class="dr-l">Month Reward</div><div class="dr-v c-rw">${fmt(a.monthReward,2)}</div></div><div class="dr"><div class="dr-l">Volume</div><div class="dr-v">$${fmt(a.monthVolume,2)}</div></div><div class="dr"><div class="dr-l">Month TXs</div><div class="dr-v">${a.monthTxns||0}</div></div><div class="dr"><div class="dr-l">Total Reward</div><div class="dr-v c-cc">${fmt(a.totalReward,2)}</div></div><div class="dr"><div class="dr-l">Pending</div><div class="dr-v c-sw">${fmt(a.pendingReward,2)}</div></div><div class="dr"><div class="dr-l">GAP/SWAP</div><div class="dr-v">${gapTxt2}</div></div></div><div class="dc-logs">${logs}</div></div>`;
             });
             $('detGrid').innerHTML=dh;
             prevData=data;

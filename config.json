@@ -2,16 +2,15 @@
     "swap": {
         "enabled": true,
         "rounds": 1000,
-        "reward_landed_threshold": 1000,
         "delay_min_seconds": 1740,
         "delay_max_seconds": 1800,
-        "min_amount": 29,
+        "min_amount": 25,
         "cc_reserve": 0.1,
-        "waiting_balance_threshold": 29,
+        "waiting_balance_threshold": 25,
         "dynamic_minimum_swap": {
             "enabled": true,
-            "extra_cc": 1.5,
-            "fallback_min": 29
+            "extra_cc": 4,
+            "fallback_min": 25
         },
         "swap_mode": 4,
         "tx_per_cycle": 3,
@@ -34,24 +33,25 @@
             "asset": "CETH",
             "label": "CETH"
         },
-        "ceth_bulk_min": 0.0005,
         "reward_estimate_ceth": 0.38,
         "reward_estimate_usdcx": 0.29,
         "max_acceptable_loss_cc": 0.28,
         "rate_check_interval_seconds": 20,
-        "rate_limit_wait_seconds": 3600
+        "rate_limit_wait_seconds": 3600,
+        "reward_landed_threshold": 9999
     },
     "background_refresh": {
         "enabled": true,
         "interval_seconds": 3540
     },
     "retry": {
-        "rate_limit_initial_delay_minutes": 28,
+        "rate_limit_initial_delay_minutes": 63,
         "rate_limit_delays": [
-            15,
-            30,
-            60
+            5,
+            5,
+            10
         ],
+        "rate_limit_max_total_minutes": 9999,
         "server_rejected_delays": [
             15,
             30,
@@ -64,8 +64,8 @@
         "swap_url": "https://api.vectornine.tech",
         "exchange_url": "https://exchange.cantor8.tech"
     },
-    "stagger_min_seconds": 5,
-    "stagger_max_seconds": 20,
+    "stagger_min_seconds": 3,
+    "stagger_max_seconds": 15,
     "derivation": {
         "path_prefix": "m/501'/800245900'/0'",
         "path_suffix": "0'",
@@ -73,14 +73,20 @@
     },
     "telegram": {
         "enabled": true,
-        "bot_token": "",
-        "user_id": ""
+        "bot_token": "8657922631:AAFcgotbIpPCGYeyH8gOUvVi8Vvnp7qTS3s",
+        "user_id": "1230799611"
+    },
+    "auto_send": {
+        "enabled": false,
+        "target_party_id": "addressmu",
+        "threshold": 100,
+        "reserve": 50
     },
     "dashboard": {
-        "enabled": true,
-        "url": "http://gantiipvps:3888",
-        "api_key": "isiapisendiribebas",
+        "aktif": true,
+        "url": "http://187.77.103.43:3888",
+        "api_key": "akugantengbangetcuy",
         "vps_id": "vps-1",
-        "push_interval_seconds": 30
+        "push_interval_detik": 30
     }
 }

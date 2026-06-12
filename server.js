@@ -140,7 +140,6 @@ app.post('/api/push', (req, res) => {
                 cc: a.cc || 0,
                 usdcx: a.usdcx || 0,
                 ceth: a.ceth || 0,
-                rcc: a.rcc || 0,
                 totalSwaps: a.totalSwaps || 0,
                 rank: a.rank || 0,
                 monthReward: a.monthReward || 0,
